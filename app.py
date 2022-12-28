@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, jsonify
 from flask_smorest import Api
+from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
 from db import db
@@ -26,6 +27,7 @@ def create_app(db_url=None):
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url or os.getenv('DATABASE_URL', 'sqlite:///data.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
+    migrate = Migrate(app, db)
     api = Api(app)
 
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'dev')
@@ -82,9 +84,9 @@ def create_app(db_url=None):
             401,
         )
 
-    with app.app_context():
-        import models   # noga: F401
-        db.create_all()
+    # with app.app_context():
+    #     import models   # noga: F401
+    #     db.create_all()
 
     api.register_blueprint(UserBlueprint)
     api.register_blueprint(ItemBlueprint)
